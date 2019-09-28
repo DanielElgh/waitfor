@@ -1,7 +1,7 @@
 /**********************************************************************
  * waitfor.c                                                          *
  *                                                                    *
- *                   Copyright (C) 2018, Daniel Elgh                  *
+ *               Copyright (C) 2018 - 2019, Daniel Elgh               *
  *      This work is licensed under the terms of the MIT license      *
  *                    For details, see LICENSE.txt                    *
  *                                                                    *

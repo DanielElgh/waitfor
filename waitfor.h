@@ -1,7 +1,7 @@
 /**********************************************************************
  * waitfor.h                                                          *
  *                                                                    *
- *                   Copyright (C) 2018, Daniel Elgh                  *
+ *               Copyright (C) 2018 - 2019, Daniel Elgh               *
  *      This work is licensed under the terms of the MIT license      *
  *                    For details, see LICENSE.txt                    *
  *                                                                    *
@@ -12,6 +12,7 @@
 #include <time.h>
 #include <stdio.h>
 
+static const char WAITFOR_VERSION[] = "1.1.0";
 static const time_t TIMEOUT_DISABLED = -1;
 
 enum exit_codes {

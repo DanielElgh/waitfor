@@ -1,7 +1,7 @@
 /**********************************************************************
  * main.c                                                             *
  *                                                                    *
- *                   Copyright (C) 2018, Daniel Elgh                  *
+ *               Copyright (C) 2018 - 2019, Daniel Elgh               *
  *      This work is licensed under the terms of the MIT license      *
  *                    For details, see LICENSE.txt                    *
  *                                                                    *
@@ -14,13 +14,26 @@
 #include <ctype.h>
 #include "waitfor.h"
 
+#define optparser(...) op((const char *[]){__VA_ARGS__, NULL})
+
+static int op (const char *[]);
 static int help (const int);
+static int version (void);
 
 int main (int argc, char *argv[]) {
     char *matchstr, *filename;
     int status_code;
     time_t timeout = TIMEOUT_DISABLED;
     size_t i = 0;
+
+    if (argc == 2) {
+        if (optparser (argv[1], "--help", "-h")) {
+            return help (EXIT_SUCCESS);
+        }
+        if (optparser (argv[1], "--version")) {
+            return version ();
+        }
+    }
 
     if (argc < 3) {
         return help (MISSING_ARG);
@@ -53,6 +66,23 @@ int main (int argc, char *argv[]) {
 
 static int help (const int exit_code) {
     puts ("waitfor - Unpretentious utility to detect if a string occurs in a text file.");
-    puts ("Usage: waitfor <search string> <file> [timeout]");
+    puts ("Usage:");
+    puts ("  waitfor <search string> <file> [timeout]");
+    puts ("  waitfor --version");
+    puts ("  waitfor --help");
     return exit_code;
+}
+
+static int version(void) {
+    printf ("waitfor %s\n", WAITFOR_VERSION);
+    return 0;
+}
+
+static int op (const char *str[]) {
+    const char *arg = *str++;
+    while (*str) {
+        if (!strcmp (arg, *str++))
+            return 1;
+    }
+    return 0;
 }
