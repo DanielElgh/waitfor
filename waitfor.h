@@ -12,18 +12,18 @@
 #include <time.h>
 #include <stdio.h>
 
-static const char WAITFOR_VERSION[] = "1.1.1";
+static const char WAITFOR_VERSION[] = "1.1.2";
 static const time_t TIMEOUT_DISABLED = -1;
 
 enum exit_codes {
-    MATCH_FOUND = 0,
-    UNKNOWN_ERROR,
-    MISSING_ARG,
-    TIMEOUT_ARG_MALFORMED,
-    MEMORY_ALLOC_ERROR,
-    STREAM_OPEN_ERROR,
-    STREAM_READ_ERROR,
-    TIMEOUT_REACHED
+    MATCH_FOUND           = 0,
+    TIMEOUT_REACHED       = 1,
+    MISSING_ARG           = 10,
+    TIMEOUT_ARG_MALFORMED = 11,
+    MEMORY_ALLOC_ERROR    = 20,
+    STREAM_OPEN_ERROR     = 21,
+    STREAM_READ_ERROR     = 22,
+    UNKNOWN_ERROR         = 255
 };
 
 int waitfor (char *, const char *, const time_t);
