@@ -2,3 +2,4 @@ waitfor
 Makefile
 waitfor-src.tar
 *.o
+.*.swp
