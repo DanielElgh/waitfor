@@ -106,7 +106,7 @@ static void mssleep (const unsigned int t) {
 }
 
 static void interpretEscapes (char *str) {
-    while (*str++) {
+    while (*str) {
         if (*str == '\\') {
             switch (str[1]) {
             case 'n':
@@ -139,6 +139,7 @@ static void interpretEscapes (char *str) {
                 break;
             }
         }
+        str++;
     }
     return;
 }

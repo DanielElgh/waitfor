@@ -12,7 +12,7 @@
 #include <time.h>
 #include <stdio.h>
 
-static const char WAITFOR_VERSION[] = "1.1.0";
+static const char WAITFOR_VERSION[] = "1.1.1";
 static const time_t TIMEOUT_DISABLED = -1;
 
 enum exit_codes {
