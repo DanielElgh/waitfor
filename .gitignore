@@ -3,3 +3,6 @@ Makefile
 waitfor-src.tar
 *.o
 .*.swp
+*.gcov
+*.gcda
+*.gcno
