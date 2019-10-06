@@ -1,0 +1,36 @@
+src = $(wildcard *.c)
+obj = $(src:.c=.o)
+
+PROJECT = waitfor
+CFLAGS = --std=c99 -Wall -Wextra -pedantic
+LDFLAGS = 
+
+$(PROJECT): $(obj)
+	$(CC) -o $@ $(LDFLAGS) $^
+
+%.o: %.c
+	$(CC) -c $(CFLAGS) $<
+
+.PHONY: all
+all: $(PROJECT)
+
+.PHONY: clean
+clean:
+	$(RM) $(PROJECT) *.o
+
+.PHONY: distclean
+distclean: clean
+	$(RM) Makefile $(PROJECT)-src.tar
+
+.PHONY: install
+install: $(PROJECT)
+	mkdir -p $(PREFIX)
+	cp $< $(PREFIX)$(PROJECT)
+
+.PHONY: uninstall
+uninstall:
+	$(RM) $(PREFIX)$(PROJECT)
+
+.PHONY: dist
+dist: distclean
+	tar -cvf $(PROJECT)-src.tar *
