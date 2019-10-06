@@ -1,22 +1,23 @@
-src = $(wildcard *.c)
-obj = $(src:.c=.o)
 
 PROJECT = waitfor
 CFLAGS = --std=c99 -Wall -Wextra -pedantic
 LDFLAGS = 
 
+src = $(wildcard *.c)
+obj = $(src:.c=.o)
+
 $(PROJECT): $(obj)
-	$(CC) -o $@ $(LDFLAGS) $^
+	$(CC) -o $@ $(LDFLAGS) $(GCOV) $^
 
 %.o: %.c
-	$(CC) -c $(CFLAGS) $<
+	$(CC) -c $(CFLAGS) $(GCOV) $<
 
 .PHONY: all
 all: $(PROJECT)
 
 .PHONY: clean
 clean:
-	$(RM) $(PROJECT) *.o
+	$(RM) $(PROJECT) *.o *.gcov *.gcda *.gcno
 
 .PHONY: distclean
 distclean: clean
@@ -34,3 +35,15 @@ uninstall:
 .PHONY: dist
 dist: distclean
 	tar -cvf $(PROJECT)-src.tar *
+
+.PHONY: smoketest
+smoketest: $(PROJECT)
+	./$(PROJECT) 'This will exist' Makefile 0 > /dev/null 2>&1
+
+.PHONY: test
+test: smoketest
+	./test
+
+.PHONY: gcov
+gcov: $(PROJECT)
+	gcov *.c

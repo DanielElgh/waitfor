@@ -4,14 +4,26 @@ BASEDIR=$(dirname "$0")
 MAKEFILE_IN="$BASEDIR/Makefile.in"
 MAKEFILE_OUT="$BASEDIR/Makefile"
 prefix='/usr/local/bin/'
+gcov=''
 
 for opt in "$@"; do
     case "$opt" in
     --prefix=*)
         prefix=${opt#--prefix=}
+        echo ' > Overridding install path.'
+        ;;
+    --gcov)
+        gcov=' -fprofile-arcs -ftest-coverage '
+        echo ' > Enabling source code coverage and profiling features.'
         ;;
     --help)
-        echo 'Usage: ./configure [--prefix=/install/path/]'
+        echo 'Usage:'
+        echo '  ./configure [--gcov] [--prefix=</install/path/>]'
+        echo ''
+        echo 'Options:'
+        echo "  --prefix=<path>  Path to where \`make install' should install the binary."
+        echo '  --gcov           Builds with source code coverage features enabled.'
+        echo '  --help           Show this help.'
         exit 0
         ;;
     *)
@@ -25,7 +37,7 @@ echo 'Generating Makefile...'
 
 prefix=$(echo "$prefix/" | tr -s /)
 echo "PREFIX = $prefix" > $MAKEFILE_OUT
-
+echo "GCOV = $gcov" >> $MAKEFILE_OUT
 cat $MAKEFILE_IN >> $MAKEFILE_OUT
 
 echo "Configuration complete, run \`make' to build."
