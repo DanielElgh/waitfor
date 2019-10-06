@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # License: The MIT License (MIT)
 # Copyright (c) 2019 Daniel Elgh
 # This work is licensed under the terms of the MIT license
