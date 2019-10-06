@@ -1,6 +1,6 @@
 waitfor
 Makefile
-waitfor-src.tar
+waitfor-src-*.tar
 *.o
 .*.swp
 *.gcov

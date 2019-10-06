@@ -21,8 +21,8 @@ clean:
 
 .PHONY: distclean
 distclean: clean
-	$(RM) Makefile $(PROJECT)-src.tar
-
+	$(RM) Makefile $(PROJECT)-src-*.tar
+ 
 .PHONY: install
 install: $(PROJECT)
 	mkdir -p $(PREFIX)
@@ -34,7 +34,7 @@ uninstall:
 
 .PHONY: dist
 dist: distclean
-	tar -cvf $(PROJECT)-src.tar *
+	tar -cvf $(PROJECT)-src-$(shell git rev-parse --short HEAD || echo -n 'untracked').tar *
 
 .PHONY: smoketest
 smoketest: $(PROJECT)
