@@ -1,0 +1,222 @@
+#!/bin/sh
+# License: The MIT License (MIT)
+# Copyright (c) 2019 Daniel Elgh
+# This work is licensed under the terms of the MIT license
+# For details, see LICENSE.txt
+#
+
+#
+# Initialization
+PROJECT=waitfor
+BINNAME=${PROJECT}
+BASEDIR=$(dirname "$0")
+TESTDIR="$BASEDIR/tests/"
+
+if [ -f "$TESTDIR/framework.sh" ]; then
+    source "$TESTDIR/framework.sh"
+else
+    echo "Unable to load test library: File '$TESTDIR/framework.sh' not found";
+    exit 1;
+fi
+init_test_framework
+
+# EXIT CODES
+MATCH_FOUND=0
+TIMEOUT_REACHED=1
+MISSING_ARG=10
+TIMEOUT_ARG_MALFORMED=11
+MEMORY_ALLOC_ERROR=20
+STREAM_OPEN_ERROR=21
+STREAM_READ_ERROR=22
+UNKNOWN_ERROR=255
+
+# Test cases
+
+{
+    caption "Look for executable" $LINENO
+    [ -x $EXECUTABLE ] && success || fail || exit 1
+}
+
+{
+    caption "No arguments" $LINENO
+    run
+    [ $? -eq $MISSING_ARG ] && success || fail
+}
+
+{
+    caption "Help arg" $LINENO
+    run --help
+    [ $? = $MATCH_FOUND ] && success || fail
+}
+
+{
+    caption "Version arg" $LINENO
+    run --version
+    [ $? = $MATCH_FOUND ] && success || fail
+}
+
+{
+    caption "Simple match w/o timeout" $LINENO
+    run "Good day" $TESTDIR/goodday.txt
+    [ $? = $MATCH_FOUND ] && success || fail
+}
+
+{
+    caption "Simple match with timout" $LINENO
+    run "Good day" $TESTDIR/goodday.txt 1
+    [ $? = $MATCH_FOUND ] && success || fail
+}
+
+{
+    caption "No-match with timeout" $LINENO
+    run "Hello my friend" $TESTDIR/goodday.txt 0
+    [ $? == $TIMEOUT_REACHED ] && success || fail
+}
+
+{
+    caption "Windows line endings" $LINENO
+    run 'Dear Mr Gates,\r\n\r\nI am' $TESTDIR/windows.txt 0
+    [ $? == $MATCH_FOUND ] && success || fail
+}
+
+{
+    caption "Double backslash" $LINENO
+    run 'newline \\n since' $TESTDIR/doublebackslash.txt 0
+    [ $? == $MATCH_FOUND ] && success || fail
+}
+
+{
+    caption "Escaped double quote" $LINENO
+    run '\"' $TESTDIR/doublequote.txt 0
+    [ $? == $MATCH_FOUND ] && success || fail
+}
+
+{
+    caption "Escaped single quote" $LINENO
+    run "don\'t" $TESTDIR/do_not.txt 0
+    [ $? == $MATCH_FOUND ] && success || fail
+}
+
+{
+    caption "Simple match on nonfirst row" $LINENO
+    run "mno" $TESTDIR/thirdrow.txt 0
+    [ $? == $MATCH_FOUND ] && success || fail
+}
+
+{
+    caption "Escaped double quote w/ double quotes" $LINENO
+    run "\"" $TESTDIR/doublequote.txt 0
+    [ $? == $MATCH_FOUND ] && success || fail
+}
+
+{
+    caption "Double quote w/ single quotes" $LINENO
+    run '"' $TESTDIR/doublequote.txt 0
+    [ $? == $MATCH_FOUND ] && success || fail
+}
+
+{
+    caption "New line escape sequence w/ single quotes" $LINENO
+    run '\n' $TESTDIR/newline.txt 0
+    [ $? == $MATCH_FOUND ] && success || fail
+}
+
+{
+    caption "New line escape sequence w/ double quotes" $LINENO
+    run "\n" $TESTDIR/newline.txt 0
+    [ $? == $MATCH_FOUND ] && success || fail
+}
+
+{
+    caption "NULL escape sequence w/ double quotes" $LINENO
+    run "\0" $TESTDIR/nullbyte.txt 0
+    [ $? == $MATCH_FOUND ] && success || fail
+}
+
+{
+    caption "NULL escape sequence w/ single quotes" $LINENO
+    run '>\0<' $TESTDIR/nullbyte.txt 0
+    [ $? == $MATCH_FOUND ] && success || fail
+}
+
+{
+    caption "Match single quote" $LINENO
+    run "'" $TESTDIR/singlequote.txt 0
+    [ $? == $MATCH_FOUND ] && success || fail
+}
+
+{
+    caption "Tab escape sequence w/ double quotes" $LINENO
+    run "\t" $TESTDIR/tab.txt 0
+    [ $? == $MATCH_FOUND ] && success || fail
+}
+
+{
+    caption "Tab escape sequence w/ single quotes" $LINENO
+    run '\t' $TESTDIR/tab.txt 0
+    [ $? == $MATCH_FOUND ] && success || fail
+}
+
+{
+    caption "Match nothing in an empty file" $LINENO
+    run '' $TESTDIR/emptyfile.txt 0
+    [ $? == $MATCH_FOUND ] && success || fail
+}
+
+{
+    caption "Match nothing" $LINENO
+    run 'asdfgh' $TESTDIR/emptyfile.txt 0
+    [ $? == $TIMEOUT_REACHED ] && success || fail
+}
+
+{
+    caption "Invalid timeout value" $LINENO
+    run 'Nonsense' $TESTDIR/emptyfile.txt 12g5
+    [ $? == $TIMEOUT_ARG_MALFORMED ] && success || fail
+}
+
+{
+    caption "Input file does not exist" $LINENO
+    run 'No input file' $TESTDIR/thisfiledoesnotexist.txt 0
+    [ $? == $STREAM_OPEN_ERROR ] && success || fail
+}
+
+{
+    caption "Fail after four seconds" $LINENO
+    BEFORE=$(date +%s)
+    run 'This wont exist in an empty file' tests/emptyfile.txt 4
+    AFTER=$(date +%s)
+    TOOK=`expr $AFTER - $BEFORE`
+    [ $TOOK -ge 4 ] && [ $TOOK -le 5 ] && [ $EXIT_STATUS -eq $TIMEOUT_REACHED ] && success || fail
+}
+
+
+# STDIN tests
+{
+    caption "Match on STDIN" $LINENO
+    echo -e  "Good morning\nGood day\nGood night" | $EXECUTABLE 'ood day' -- 0 > /dev/null 2>&1
+    [ $? == $MATCH_FOUND ] && success || fail
+}
+
+{
+    caption "Fail on STDIN" $LINENO
+    echo -e  "Flour\nSugar\nStrawberries\nSalt\nButter\nEgg\nWater" | $EXECUTABLE 'Rhubarb' -- 0 > /dev/null 2>&1
+    [ $? == $TIMEOUT_REACHED ] && success || fail
+}
+
+# Move up this one!
+{
+    caption "Late match after append" $LINENO
+    > .tmp
+    $EXECUTABLE "od by" .tmp 10 > /dev/null 2>&1 & 
+    C_PID=$!
+   
+    sleep 2
+    echo -e "Hi this is a test.\nGood bye\n\n" >> .tmp
+    sleep 2
+    kill -0 $C_PID > /dev/null 2>&1
+    [ $? -ne $MATCH_FOUND ] && success || fail 
+    rm -f .tmp
+}
+
+done_testing

@@ -1,0 +1,7 @@
+Dear Mr Gates,
+
+I am pleased to announce that waitfor works on Windows.
+
+
+Best regards,
+Daniel
